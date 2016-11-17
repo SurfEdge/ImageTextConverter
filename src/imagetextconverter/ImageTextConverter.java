@@ -10,6 +10,10 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import java.awt.Font;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -20,21 +24,36 @@ public class ImageTextConverter {
     /**
      * @param args the command line arguments
      */
+    private static int imageCounter = 0;
+
     public static void main(String[] args) throws IOException {
+
+        File templateFile = new File("template.jpg");
+        String fileNameListPath = "names.txt";
+                
+        // File reading
+        BufferedReader in = new BufferedReader(new FileReader(fileNameListPath));
+        String currentName;
+        List<String> nameList = new ArrayList<String>();
+        while ((currentName = in.readLine()) != null) {
+            nameList.add(currentName);
+        }
         
-        printNameToImage("Chamath Palihawadana", new File("template.jpg"));
- 
+        // Iterating and sending for names for image modification
+        for (String currentNameInFile : nameList){
+            printNameToImage(currentNameInFile, templateFile);
+        }
     }
-    
-    private static void printNameToImage (String fullName, File templateImageFile) throws IOException{
-        
+
+    private static void printNameToImage(String fullName, File templateImageFile) throws IOException {
+
         final BufferedImage image = ImageIO.read(templateImageFile);
         Graphics g = image.getGraphics();
         FontRenderContext frc = new FontRenderContext(null, true, true);
-        
+
         // The border dimensions of the complete String
-        Rectangle r = new Rectangle(image.getWidth(), image.getHeight());        
-        Font font = g.getFont().deriveFont(115f);      
+        Rectangle r = new Rectangle(image.getWidth(), image.getHeight());
+        Font font = g.getFont().deriveFont(100f);
         Rectangle2D r2D = font.getStringBounds(fullName, frc);
         int rWidth = (int) Math.round(r2D.getWidth());
         int rHeight = (int) Math.round(r2D.getHeight());
@@ -45,11 +64,11 @@ public class ImageTextConverter {
         g.setColor(Color.black);
         g.setFont(font);
 
-        if (rWidth < (image.getWidth() - 200)) {
+        if (rWidth < (image.getWidth() - 75)) {
             // Process if the name can be added in one line
             int a = (r.width / 2) - (rWidth / 2) - rX;
-            int b = ((r.height / 2) - (rHeight / 2) - rY - 50);
-            
+            int b = ((r.height / 2) - (rHeight / 2) - rY - 60);
+
             g.drawString(fullName, r.x + a, r.y + b);
         } else {
             // Process if the name cannot be added in one line
@@ -70,17 +89,17 @@ public class ImageTextConverter {
 
             // Location for string part 1
             int a1 = (r.width / 2) - (rWidthForStr1 / 2) - rXForStr1;
-            int b1 = ((r.height / 2) - (rHeight / 2) - rY - 140);
+            int b1 = ((r.height / 2) - (rHeight / 2) - rY - 150);
 
             // Location for string part 2
             int a2 = (r.width / 2) - (rWidthForStr2 / 2) - rXForStr2;
-            int b2 = ((r.height / 2) - (rHeight / 2) - rY - 20);
+            int b2 = ((r.height / 2) - (rHeight / 2) - rY - 40);
 
             g.drawString(part1, r.x + a1, r.y + b1);
             g.drawString(part2, r.x + a2, r.y + b2);
         }
         g.dispose();
-        ImageIO.write(image, "jpg", new File("test.jpg"));
+        ImageIO.write(image, "jpg", new File("output_image" + (++imageCounter) + ".jpg"));
     }
 
 }
